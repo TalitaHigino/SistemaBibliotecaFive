@@ -20,9 +20,9 @@ namespace SistemaBiblioteca
             return ">>> DADOS DO LIVRO <<<\n Número do Tombo : " + NumeroTombo + "ISBN: " +ISBN + "Título:" + Titulo + "Gênero: " + Genero +
                 "Data de Publicação: " + DataPublicacao + "Autor: "+ Autor +ToString();
         }
-        public string ConverterCSVLivro()
+        public string ConverterCSV()
         {
-            return $"{NumeroTombo},{ISBN},{Titulo},{Genero}, {DataPublicacao}, {Autor}";
+            return $"\n{NumeroTombo},{ISBN},{Titulo},{Genero}, {DataPublicacao}, {Autor}";
         }
     }
 }

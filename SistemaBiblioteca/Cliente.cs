@@ -23,7 +23,7 @@ namespace SistemaBiblioteca
         }
         public string ConverterCSV()
         {
-            return $"{IdCliente},{Cpf},{DataNascimento},{Telefone}, {Endereco}";
+            return $"\n{IdCliente},{Cpf},{DataNascimento},{Telefone}, {Endereco}";
         }
     }
 }

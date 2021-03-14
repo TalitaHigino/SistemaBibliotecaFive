@@ -11,14 +11,20 @@ namespace SistemaBiblioteca
 {
     class Program
     {
+        private static readonly string CLIENTECSV = Directory.GetCurrentDirectory() + "\\cliente.csv";
+        private static readonly string LIVROCSV = Directory.GetCurrentDirectory() + "\\livro.csv";
+        private static readonly string EMPRESTIMOCSV = Directory.GetCurrentDirectory() + "\\emprestimo.csv";
+        private const double MULTA = 0.10;
+
         static void Main(string[] args)
         {
+            CriarBancoDeDadosCSV();
             MenuPrincipal();
         }
+        #region ClienteService
         private static void RegistrarCliente()
         {
             // registra o cliente e pede informações do cliente           
-
             Console.WriteLine("\nInforme seu CPF: ");
             string cpf = Console.ReadLine();
 
@@ -26,8 +32,9 @@ namespace SistemaBiblioteca
             if (ClienteExistente(cpf))
             {
                 Console.WriteLine(">>> Cliente já cadastrado <<<");
-
+                MenuPrincipal();
             }
+
             Console.WriteLine("\nInforme seu Nome Completo: ");
             string nome = Console.ReadLine();
 
@@ -36,9 +43,12 @@ namespace SistemaBiblioteca
 
             DateTime dataNascimento;
 
+            //enquanto não cuspir dataNascimento de forma correta, não sairá de dentro do while.
+            //exemplo pegado em pesquisa.
             while (!DateTime.TryParseExact(dataNasc, "dd/MM/yyyy", null, DateTimeStyles.None, out dataNascimento))
             {
                 Console.WriteLine("Formato inválido");
+                Console.WriteLine("\nInforme sua data de nascimento dd/MM/yyyy: ");
                 dataNasc = Console.ReadLine();
             }
 
@@ -61,6 +71,8 @@ namespace SistemaBiblioteca
             Console.WriteLine("\nInforme seu CEP: ");
             string cep = Console.ReadLine();
 
+            Console.WriteLine("Cliente cadastrado com sucesso!");
+            //instanciando cliente
             Cliente novoCliente = new Cliente()
             {
                 Cpf = cpf,
@@ -68,6 +80,7 @@ namespace SistemaBiblioteca
                 DataNascimento = dataNascimento,
                 Telefone = telefone,
 
+                //instanciando endereço
                 Endereco = new Endereco()
                 {
                     Logradouro = logradouro,
@@ -78,41 +91,48 @@ namespace SistemaBiblioteca
                 }
             };
 
-            novoCliente.IdCliente = BuscarUltimoId();
+            //MUDAR!!!!!
+            //novoCliente.IdCliente = 1;
+
+            //new 
+            // ClienteService clienteService = new ClienteService();
+            novoCliente.IdCliente = BuscarUltimoIdCliente();
+
             SalvarCliente(novoCliente);
+            MenuPrincipal();
         }
-        private static long BuscarUltimoId()
+        public static long BuscarUltimoIdCliente()
         {
-            var strLines = File.ReadLines(@"C:\Arquivos");// arrumar
+            long ultimoElemento = 1;
+            var strLines = File.ReadLines(CLIENTECSV);
 
-            string ultimaLinha = strLines.Last();
+            //Pular cabeçalho
+            if (strLines.Count() > 1)
+            {
+                string ultimaLinha = strLines.Last();
+                ultimoElemento = long.Parse(ultimaLinha.Split(',')[0]);
+            }
 
-            long ultimoElemento = long.Parse(ultimaLinha.Split(',')[3]);
-
-            return ultimoElemento++;
+            return ultimoElemento + 1;
         }
-
         private static void SalvarCliente(Cliente cliente)
         {
-            using (StreamWriter filaWriter = new StreamWriter(@"C:\Arquivos"))
-
-                filaWriter.WriteLine(cliente.ConverterCSV());
-
+            File.AppendAllText(CLIENTECSV, cliente.ConverterCSV());
         }
-
         private static bool ClienteExistente(string cpf)
         {
             bool clienteExiste = false;
 
-            var strLines = File.ReadLines(@"C:\cliente.csv"); // arrumar 
+            //var: declarar variavel implicamente
+            var strLines = File.ReadLines(CLIENTECSV);
 
             foreach (var line in strLines)
             {
                 //ID,NOME,CPF
                 //0-ID
-                //1-NOME
-                //2-CPF
-                if (line.Split(',')[0].Equals(cpf))
+                //1-CPF
+                //2-NOME
+                if (line.Split(',')[1].Trim().Equals(cpf))
                 {
                     clienteExiste = true;
                     break;
@@ -120,32 +140,63 @@ namespace SistemaBiblioteca
             }
             return clienteExiste;
         }
+        private static long BuscarClienteId(string cpf)
+        {
+            long id = 0;
 
-        private static void CadastrarLivro()
+            //var: declarar variavel implicamente
+            var strLines = File.ReadLines(CLIENTECSV);
+
+            foreach (var line in strLines)
+            {
+                //ID,NOME,CPF
+                //0-ID
+                //1-CPF
+                //2-NOME
+                if (line.Split(',')[1].Trim().Equals(cpf))
+                {
+                    id = long.Parse(line.Split(',')[0]);
+                    break;
+                }
+            }
+
+            return id;
+        }
+        #endregion
+
+        #region LivroService
+        private static void RegistrarLivro()
         {
             //Cadastra as informaçõs gerais do livro e verifica se existe
 
             Console.WriteLine("\nInforme o ISBN do livro:  ");
             string isbn = Console.ReadLine();
-            Console.WriteLine(">>> Procurando ....\n\n\n");
+
             if (LivroExistente(isbn))
             {
                 Console.WriteLine(">>>Livro já cadastrado <<<");
+                MenuPrincipal();
             }
+
             Console.WriteLine("\nInforme o Título do Livro: ");
             string titulo = Console.ReadLine();
+
             Console.WriteLine("\nInforme qual é o Gênero: ");
             string genero = Console.ReadLine();
+
             Console.WriteLine("\nInforme a Data de Publicação: ");
             string datapublicacao = Console.ReadLine();
             DateTime dataPublicacao;
             while (!DateTime.TryParseExact(datapublicacao, "dd/MM/yyyy", null, DateTimeStyles.None, out dataPublicacao))
             {
                 Console.WriteLine("Formato inválido");
+                Console.WriteLine("\nInforme a Data de Publicação dd/MM/yyyy: ");
                 datapublicacao = Console.ReadLine();
             }
+
             Console.WriteLine("Informe o nome do Autor: ");
             string autor = Console.ReadLine();
+
             Livro novoLivro = new Livro()
             {
                 ISBN = isbn,
@@ -156,23 +207,27 @@ namespace SistemaBiblioteca
             };
 
             novoLivro.NumeroTombo = NumeroTombo();
+
             SalvarLivro(novoLivro);
+
+            //interpolação é bom para não passar indice ex - {0}", numerotombo
+            Console.WriteLine($"Livro cadastrado com sucesso!!.Número {novoLivro.NumeroTombo}");
+
+            MenuPrincipal();
         }
         private static void SalvarLivro(Livro livro)
         {
-            using (StreamWriter filaWriter = new StreamWriter(@"C:Users\talit\source\repos\SistemaBiblioteca\SistemaBiblioteca"))//arrumar
-
-                filaWriter.WriteLine(livro.ConverterCSVLivro());
+            File.AppendAllText(LIVROCSV, livro.ConverterCSV());
         }
         private static bool LivroExistente(string isbn)
         {
             bool livroExiste = false;
 
-            var lines = File.ReadLines(@"C:\Users\talit\source\repos\SistemaBiblioteca\SistemaBiblioteca");//arrumar
+            var lines = File.ReadLines(LIVROCSV);
 
             foreach (var line in lines)
             {
-                if (line.Split(',')[0].Equals(isbn))
+                if (line.Split(',')[1].Equals(isbn))
                 {
                     livroExiste = true;
                     break;
@@ -180,68 +235,178 @@ namespace SistemaBiblioteca
             }
             return livroExiste;
         }
+        private static bool LivroDisponivel(long numeroTombo)
+        {
+            bool livroDisponivel = true;
+
+            var lines = File.ReadLines(EMPRESTIMOCSV);
+
+            foreach (var line in lines)
+            {
+                if (line.Split(',')[1].Trim().Equals(numeroTombo.ToString()))
+                {
+                    livroDisponivel = false;
+                    break;
+                }
+            }
+            return livroDisponivel;
+        }
         private static long NumeroTombo()
         {
-            var linha = File.ReadLines(@"C: \Users\talit\source\repos\SistemaBiblioteca\SistemaBiblioteca");// arrumar
+            long ultimoElemento = 0;
+            var todasAsLinhas = File.ReadLines(LIVROCSV);
 
-            string ultimaLinha = linha.Last();
+            if (todasAsLinhas.Count() > 1)
+            {
+                string ultimaLinha = todasAsLinhas.Last();
+                /*isbn, tombo, nome, genero, data, autor
+                 * 0 - isbn
+                 * 1 - tombo
+                 * 2 - nome
+                 * 3 - genero
+                 * 4 - data
+                 * 5 - autor
+                 */
+                ultimoElemento = long.Parse(ultimaLinha.Split(',')[0]);
+            }
 
-            long ultimoElemento = long.Parse(ultimaLinha.Split(',')[5]);
-
-            return ultimoElemento++;
+            return ultimoElemento + 1;
         }
+        #endregion
 
-        private static void EmprestimosLivro()// falta ainda 
+        #region EmprestimoService
+        private static void EmprestimoLivro()
         {
             Console.WriteLine("Informe o Número do Tombo: ");
             long numeroTombo = long.Parse(Console.ReadLine());
-            if (numeroTombo != NumeroTombo())//consultar tombo 
+            //VERIFICAR ESTA REGRA, PRA SABER SE REINICIA O PROCESSO DE EMPRESTIMO
+            if (!LivroDisponivel(numeroTombo))//consultar tombo 
             {
-                Console.WriteLine("LIVRO NÃO EXISTE!!!");
-                CadastrarLivro();
-            }
-            Console.WriteLine("Informe o seu CPF: ");// consultar cliente
-            string cpf = Console.ReadLine();
-            if (ClienteExistente(cpf))
-            {
-                Console.WriteLine("CADASTRO EXISTENTE!!!.");
-            }
-            else
-            {
-                Console.WriteLine("CLIENTE NÃO CADATRADO!!!");
-                RegistrarCliente();
+                Console.WriteLine("Livro indisponível para empréstimo.");
+                EmprestimoLivro();
             }
 
-            Console.WriteLine("A data do Emprestimo: ");
+            Console.WriteLine("Informe o seu CPF: ");// consultar cliente
+            string cpf = Console.ReadLine();
+
+            if (!ClienteExistente(cpf))
+            {
+                Console.WriteLine("Cliente não cadastrado.");
+                EmprestimoLivro();
+            }
+
             DateTime dataEmprestimo = DateTime.Now;
+
             Console.WriteLine("Informe a data de Devolução: ");
             string dataDevolucao = Console.ReadLine();
+
             DateTime datadevolucao;
             while (!DateTime.TryParseExact(dataDevolucao, "dd/MM/yyyy", null, DateTimeStyles.None, out datadevolucao))
             {
                 Console.WriteLine("FORMATO INVÁLIDO!");
+                Console.WriteLine("Informe a data de Devolução dd/MM/yyyy: ");
+
                 dataDevolucao = Console.ReadLine();
             }
 
-
             EmprestimoLivro emprestimo = new EmprestimoLivro
             {
-                IdCliente= BuscarUltimoId(), 
+                IdCliente = BuscarClienteId(cpf),
                 NumeroTombo = numeroTombo,
                 DataEmprestimo = dataEmprestimo,
                 DataDevolucao = datadevolucao,
-                //StatusEmprestimo = statusEmprestimo
+                StatusEmprestimo = 1
             };
-        }
 
-        private static void DevolucaoLivro()
-        { 
-        
-        
-        
-        
+            SalvarEmprestimo(emprestimo);
+            MenuPrincipal();
         }
-        static void MenuPrincipal()
+        private static void DevolucaoLivro()
+        {
+            Console.WriteLine("Informe o Número do Tombo: ");
+            long numeroTombo = long.Parse(Console.ReadLine());
+            //VERIFICAR ESTA REGRA, PRA SABER SE REINICIA O PROCESSO DE DEVOLUÇÃO
+            if (!LivroEmprestado(numeroTombo))//consultar tombo 
+            {
+                Console.WriteLine("Livro não encontrado para devolução");
+                DevolucaoLivro();
+            }
+
+            DateTime dataDevolucao = BuscarDataDevolucao(numeroTombo);
+
+            int dias = 0;
+
+
+            if (DateTime.Now > dataDevolucao)
+            {
+                dias = DateTime.Now.Day - dataDevolucao.Day;
+            }
+
+            AtualizarEmprestimo(numeroTombo, 2);
+
+            double multaTotal = 0.0;
+
+            if (dias > 0)
+                multaTotal = dias * MULTA;
+
+            Console.WriteLine($"O Valor da Multa total é de {multaTotal}");
+        }
+        private static DateTime BuscarDataDevolucao(long numeroTombo)
+        {
+            DateTime dataDevolucao = new DateTime();
+
+            var lines = File.ReadLines(EMPRESTIMOCSV);
+
+            foreach (var line in lines)
+            {
+                if (line.Split(',')[1].Trim().Equals(numeroTombo.ToString()))
+                {
+                    dataDevolucao = DateTime.Parse(line.Split(',')[3]);
+                    break;
+                }
+            }
+
+            return dataDevolucao;
+        }
+        private static bool LivroEmprestado(long numeroTombo)
+        {
+            bool LivroEmprestado = false;
+
+            var lines = File.ReadLines(EMPRESTIMOCSV);
+
+            foreach (var line in lines)
+            {
+                if (line.Split(',')[1].Trim().Equals(numeroTombo.ToString()))
+                {
+                    LivroEmprestado = true;
+                    break;
+                }
+            }
+            return LivroEmprestado;
+        }
+        private static void SalvarEmprestimo(EmprestimoLivro emprestimoLivro)
+        {
+            File.AppendAllText(EMPRESTIMOCSV, emprestimoLivro.ConverterCSV());
+        }
+        private static void AtualizarEmprestimo(long numeroTombo, int situacao)
+        {
+            var lines = File.ReadLines(EMPRESTIMOCSV);
+
+            foreach (var line in lines)
+            {
+                if (line.Split(',')[1].Trim().Equals(numeroTombo.ToString()))
+                {
+                    line.Split(',')[4] = situacao.ToString();
+                    break;
+                }
+            }
+
+            //ATUALIZAR LINHA
+        }
+        #endregion
+
+        #region Principal
+        private static void MenuPrincipal()
         {
             //menuprincipal 
             Console.WriteLine(">>> MENU PRINCIPAL <<< ");
@@ -256,6 +421,9 @@ namespace SistemaBiblioteca
 
             switch (escolha)
             {
+                case 0:
+                    Environment.Exit(0);
+                    break;
                 case 1:
                     //cadastrar cliente
                     Console.Clear();
@@ -265,13 +433,13 @@ namespace SistemaBiblioteca
                 case 2:
                     //cadastrar livro
                     Console.Clear();
-                    CadastrarLivro();
+                    RegistrarLivro();
 
                     break;
                 case 3:
                     //emprestimo
                     Console.Clear();
-                    EmprestimosLivro();
+                    EmprestimoLivro();
 
                     break;
                 case 4:
@@ -282,38 +450,36 @@ namespace SistemaBiblioteca
                 case 5:
                     //relatório
                     Console.Clear();
-
                     break;
                 default:
                     break;
 
             }
         }
+        private static void CriarBancoDeDadosCSV()
+        {
+            string cabecalho;
+
+            //verifico se existe o arquivo
+            if (!File.Exists(CLIENTECSV))
+            {
+                cabecalho = "IdCliente, Cpf, Nome, DataNascimento, Telefone, Logradouro, Bairro, Cidade, Estado, CEP";
+                File.WriteAllText(CLIENTECSV, cabecalho);
+            }
+
+            if (!File.Exists(LIVROCSV))
+            {
+                cabecalho = "NumeroTombo, ISBN, Titulo, Genero, DataPublicacao, Autor";
+                File.WriteAllText(LIVROCSV, cabecalho);
+            }
+
+            if (!File.Exists(EMPRESTIMOCSV))
+            {
+                cabecalho = "IdCliente, NumeroTombo, DataEmprestimo, DataDevolucao, StatusEmprestimo";
+                File.WriteAllText(EMPRESTIMOCSV, cabecalho);
+            }
+
+        }
+        #endregion
     }
 }
-/*IdCliente – Long - Já Existente .CSV CLIENTE
-NumeroTombo – Long – Já Existente .CSV LIVRO
-DataEmprestimo – DateTime - Sistêmico
-DataDevolucao – DateTime - Usuário
-StatusEmprestimo – (1-emprestado, 2-devolvido) – Int – Sistêmico 
-
- O sistema deve receber o NumeroTombo do exemplar e validar se existe o exemplar disponível, caso o exemplar 
-não esteja disponível, uma mensagem deve ser exibida, “Livro indisponível para empréstimo”. 
-Após a validação do numeroTombo o usuário deve entrar com o CPF e uma validação deve ser feita para validar 
-se o cliente esta cadastrado, caso o cliente não esteja cadastro uma msg deve ser exibida, “Cliente não cadastrado” 
-e o processo de empréstimo deve ser reiniciado. Em caso de sucesso das validações o usuário deve entrar com os dados 
-restantes para completar o empréstimo. Vale lembrar que sempre deve ser inserido o status do empréstimo com o valor 
-de 1(Emprestado) e que a DataEmprestimo deve ser preenchida pelo sistema com a data atual(datetime now). 
-Os dados de empréstimo devem ser inseridos no .CSV EMPRESTIMO.
-
-Eu como solicitante, desejo que o sistema tenha uma interface para realizar a devolução de livros.
-A devolução deve acontecer da seguinte forma; O usuário deve entrar com o Numero do Tombo e devemos 
-validar se o exemplar com aquele numeroTombo está emprestado, caso não esteja uma msg deve ser exibida, “Livro não encontrado para devolução”.
-O sistema também deve calcular a multa do empréstimo caso a data atual(datetime now) seja maior que a 
-DataDevolucao(que foi inserida no ato do emprestimo), e o valor deve ser especificado em uma constate que terá
-o valor de 10 centavos por dia. A multa deve ser exibida em uma msg após a devolução.
-A devolução dos livros deve modificar o status do empréstimo no .CSV EMPRESTIMO para 2(Devolvido). 
-
- 
- 
- */

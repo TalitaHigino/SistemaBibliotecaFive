@@ -20,5 +20,9 @@ namespace SistemaBiblioteca
         {
             return $"{IdCliente},{NumeroTombo},{DataEmprestimo},{DataDevolucao},{StatusEmprestimo.ToString("MM/dd/yyyy", CultureInfo.InvariantCulture)}";
         }
+        public string ConverterCSV()
+        {
+            return $"\n{IdCliente}, {NumeroTombo}, {DataEmprestimo}, {DataDevolucao}, {StatusEmprestimo}";
+        }
     }
 }
