@@ -357,12 +357,12 @@ namespace SistemaBiblioteca
 
             DateTime dataDevolucao = BuscarDataDevolucao(numeroTombo);
 
-            int dias = 0;
+            double dias = 0;
 
 
             if (DateTime.Now > dataDevolucao)
             {
-                dias = DateTime.Now.Day - dataDevolucao.Day;
+                dias = (DateTime.Now - dataDevolucao).TotalDays;
             }
 
             AtualizarEmprestimo(numeroTombo, 2);
@@ -373,6 +373,7 @@ namespace SistemaBiblioteca
                 multaTotal = dias * MULTA;
 
             Console.WriteLine($"O Valor da Multa total é de {multaTotal}");
+            Console.WriteLine(multaTotal.ToString("C", CultureInfo.CurrentCulture));
         }
         private static DateTime BuscarDataDevolucao(long numeroTombo)
         {
@@ -382,6 +383,10 @@ namespace SistemaBiblioteca
 
             foreach (var line in lines)
             {
+                if (line == "")
+                {
+                    continue;
+                }
                 if (line.Split(';')[1].Trim().Equals(numeroTombo.ToString()))
                 {
                     dataDevolucao = DateTime.Parse(line.Split(';')[3]);
@@ -399,6 +404,10 @@ namespace SistemaBiblioteca
 
             foreach (var line in lines)
             {
+                if (line == "")
+                {
+                    continue;
+                }
                 if (line.Split(';')[1].Trim().Equals(numeroTombo.ToString()) && line.Split(';')[4].Trim().Equals("1"))
                 {
                     LivroEmprestado = true;
@@ -459,10 +468,14 @@ namespace SistemaBiblioteca
             //var: declarar variavel implicamente
             var strLines = File.ReadLines(EMPRESTIMOCSV);
 
-            Console.WriteLine("CPF do CLiente , Titulo do Livro, Status do Empréstimo, Data do Empréstimo, Data Devolução.");            
+            Console.WriteLine("CPF do CLiente , Titulo do Livro, Status do Empréstimo, Data do Empréstimo, Data Devolução.\n");            
 
             foreach (var line in strLines.Skip(1))
             {
+                if (line == "")
+                {
+                    continue;
+                }
                 string idCliente = line.Split(';')[0].Trim();
                 long numeroTombo = long.Parse(line.Split(';')[1].Trim());
                 int statusEmprestimo = int.Parse(line.Split(';')[4].Trim());
@@ -484,9 +497,9 @@ namespace SistemaBiblioteca
                     situacao = "devolvido";
                 }
 
-                Console.WriteLine($"{cpf},{tituloLivro},{situacao}, {dataEmprestimo},{dataDevolucao}");
-            }   
-            
+                Console.WriteLine($"{cpf},{tituloLivro},{situacao}, {dataEmprestimo},{dataDevolucao}\n");
+            }
+            Console.WriteLine("\n");
         }
   
         #endregion
