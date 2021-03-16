@@ -16,14 +16,10 @@ namespace SistemaBiblioteca
         public Endereco Endereco { get; set; }
 
 
-        public override string ToString()
-        {
-            return ">>> DADOS DO CONTATO <<<\n IdCliente: " + IdCliente + "CPF: " + Cpf + "Nome:" + Nome + "Data de Nascimento: " + DataNascimento +
-                "Telefone: " + Telefone + ToString();
-        }
+        
         public string ConverterCSV()
         {
-            return $"\n{IdCliente},{Cpf},{DataNascimento},{Telefone}, {Endereco}";
+            return $"\n{IdCliente};{Cpf};{Nome};{DataNascimento};{Telefone}; {Endereco}";
         }
     }
 }

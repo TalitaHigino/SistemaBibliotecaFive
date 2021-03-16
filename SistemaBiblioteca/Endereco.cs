@@ -14,11 +14,10 @@ namespace SistemaBiblioteca
         public string Estado { get; set; }
         public string CEP { get; set; }
 
-        /*public override string ToString()
+        public override string ToString()
         {
-            return "\n Logradouro: " + Logradouro + "Bairro: " + Bairro + "Cidade:" + Cidade + "Estado: " + Estado +
-                "CEP: " + CEP + ToString();
-        }*/
+            return $"{Logradouro}; {Bairro}; {Cidade}; {Estado}; {Estado}; {CEP}";
+        }
     }
 }
 

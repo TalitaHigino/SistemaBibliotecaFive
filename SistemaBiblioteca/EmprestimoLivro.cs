@@ -16,13 +16,9 @@ namespace SistemaBiblioteca
         public DateTime DataDevolucao { get; set; }
         public int StatusEmprestimo { get; set; }
 
-        public override string ToString()
-        {
-            return $"{IdCliente},{NumeroTombo},{DataEmprestimo},{DataDevolucao},{StatusEmprestimo.ToString("MM/dd/yyyy", CultureInfo.InvariantCulture)}";
-        }
         public string ConverterCSV()
         {
-            return $"\n{IdCliente}, {NumeroTombo}, {DataEmprestimo}, {DataDevolucao}, {StatusEmprestimo}";
+            return $"\n{IdCliente}; {NumeroTombo};{DataEmprestimo}; {DataDevolucao}; {StatusEmprestimo}";
         }
     }
 }

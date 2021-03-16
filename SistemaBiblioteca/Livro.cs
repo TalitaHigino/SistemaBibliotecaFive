@@ -15,14 +15,10 @@ namespace SistemaBiblioteca
         public DateTime DataPublicacao{ get; set; }
         public string Autor { get; set; }
 
-        public override string ToString()
-        {
-            return ">>> DADOS DO LIVRO <<<\n Número do Tombo : " + NumeroTombo + "ISBN: " +ISBN + "Título:" + Titulo + "Gênero: " + Genero +
-                "Data de Publicação: " + DataPublicacao + "Autor: "+ Autor +ToString();
-        }
+      
         public string ConverterCSV()
         {
-            return $"\n{NumeroTombo},{ISBN},{Titulo},{Genero}, {DataPublicacao}, {Autor}";
+            return $"\n{NumeroTombo};{ISBN};{Titulo};{Genero}; {DataPublicacao}; {Autor}";
         }
     }
 }
